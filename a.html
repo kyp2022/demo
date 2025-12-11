@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java与MySQL面试题详解 - 互动式学习</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(255,255,255,0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(255,255,255,0.1) 0%, transparent 20%);
+            z-index: -1;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7, #dda0dd, #ff6b6b);
+            animation: rotate 20s linear infinite;
+            z-index: -1;
+            opacity: 0.2;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #1a2a6c, #b21f1f);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #555;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .categories {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .category-btn {
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .category-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+            background: white;
+        }
+        
+        .category-btn.active {
+            background: linear-gradient(45deg, #1a2a6c, #b21f1f);
+            color: white;
+        }
+        
+        .questions-container {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .question-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .question-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .question-header {
+            padding: 20px;
+            background: linear-gradient(to right, #f8f9fa, #e9ecef);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .question-header h3 {
+            font-size: 1.3rem;
+            color: #1a2a6c;
+            font-weight: 600;
+        }
+        
+        .toggle-icon {
+            font-size: 1.4rem;
+            color: #b21f1f;
+            transition: transform 0.3s ease;
+        }
+        
+        .answer {
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease, padding 0.5s ease;
+            background: white;
+        }
+        
+        .answer.expanded {
+            padding: 20px;
+            max-height: 1000px;
+        }
+        
+        .answer p {
+            margin-bottom: 15px;
+            line-height: 1.7;
+            color: #444;
+        }
+        
+        .answer code {
+            background: #f1f3f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #b21f1f;
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%);
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: white;
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #4ecdc4, #45b7d1);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .question-header h3 {
+                font-size: 1.1rem;
+            }
+            
+            .category-btn {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-code"></i> Java与MySQL面试题详解</h1>
+            <p class="subtitle">深入理解核心概念，掌握面试必备技能。点击问题查看详细解答，助你轻松应对技术面试！</p>
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+        </header>
+        
+        <div class="categories">
+            <button class="category-btn active" data-category="all">
+                <i class="fas fa-list"></i> 全部问题
+            </button>
+            <button class="category-btn" data-category="java">
+                <i class="fab fa-java"></i> Java基础
+            </button>
+            <button class="category-btn" data-category="mysql">
+                <i class="fas fa-database"></i> MySQL
+            </button>
+        </div>
+        
+        <div class="questions-container" id="questionsContainer">
+            <!-- Questions will be dynamically inserted here -->
+        </div>
+        
+        <footer>
+            <p>© 2025 面试准备助手 | 精心整理，助你成功</p>
+        </footer>
+    </div>
+
+    <script>
+        // Interview questions data
+        const interviewQuestions = [
+            {
+                id: 1,
+                category: "java",
+                question: "了解的Java常用集合有哪些，具体适用场景是什么？",
+                answer: `Java集合框架主要包括List、Set、Queue和Map四个核心接口，它们各自有不同的实现类和适用场景。\n\n<strong>List接口</strong>主要实现类有ArrayList和LinkedList。ArrayList基于动态数组实现，适合频繁随机访问的场景；而LinkedList是基于双向链表的实现，适合频繁在头尾进行增删操作的场景。\n\n<strong>Set接口</strong>的常用实现类包括HashSet、LinkedHashSet和TreeSet。HashSet基于哈希表实现，查询效率极高，适合快速去重的场景；LinkedHashSet可以保持元素的插入顺序；TreeSet基于红黑树实现，元素自动排序。\n\n<strong>Map接口</strong>的实现类主要有HashMap、LinkedHashMap、TreeMap和ConcurrentHashMap。HashMap同样是基于哈希表，是键值对存储的首选；LinkedHashMap可以保持插入顺序或实现LRU缓存；TreeMap基于红黑树，按键排序；ConcurrentHashMap是线程安全的实现，适用于高并发环境。\n\n在实际应用中，我们通常遵循'无脑选ArrayList，需高频头尾操作才用LinkedList'的原则；对于需要去重的场景，根据是否需要顺序选择HashSet或LinkedHashSet；对于需要排序的场景则选择TreeSet或TreeMap。`
+            },
+            {
+                id: 2,
+                category: "java",
+                question: "HashMap的键为何一般不可变？",
+                answer: `HashMap的键对象需要满足两个条件：<span class="highlight">正确的equals()方法实现</span>和<span class="highlight">稳定的hashCode()值</span>。如果键对象是可变的，当它被放入HashMap后，如果其哈希码发生改变，就可能导致后续查找时无法定位到正确的桶位置，从而引发数据丢失或查询失败。\n\n具体来说，当键对象被放入HashMap时，会根据其当前的hashCode()计算存储位置。如果后续键对象被修改，导致hashCode()值变化，但实际存储位置没有更新，那么在调用get(key)时，会根据新计算的hashCode()去查找，但找不到原来存储的值。\n\n因此，为了保证HashMap的正确性，通常建议使用不可变对象作为键。例如，String、Integer等包装类都是不可变的，适合作为键；而像ArrayList这样的可变对象则不太适合作为键，除非能确保其内容不会被修改。`
+            },
+            {
+                id: 3,
+                category: "java",
+                question: "HashMap出现哈希冲突时如何解决？",
+                answer: `<span class="highlight">HashMap使用链地址法（Separate Chaining）解决哈希冲突</span>。也就是说，每个桶（bucket）实际上是一个链表，当多个键映射到同一个桶时，这些键值对会以链表形式存储在同一个桶中。\n\n在JDK 1.8之前，链表是单向的；而从JDK 1.8开始，<span class="highlight">当链表长度超过8时，链表会转换为红黑树</span>，这样查找时间复杂度从O(n)降为O(log n)，大大提高了查询效率。\n\n为了减少哈希冲突，Java的HashMap采用了<span class="highlight">扰动函数</span>对hashCode()进行二次处理，将高位和低位进行异或操作，这样可以更均匀地分布到各个桶中。此外，合理选择负载因子（默认0.75）和初始容量也能有效减少冲突。`
+            },
+            {
+                id: 4,
+                category: "java",
+                question: "HashMap中链表为何要转为红黑树，为何不直接用红黑树实现？",
+                answer: `<span class="highlight">链表转红黑树的触发条件是链表长度超过8且表的总容量超过64</span>。这是因为当链表较长时，查找操作的时间复杂度会从O(1)退化为O(n)，影响性能。而红黑树的查找时间复杂度为O(log n)，可以有效提升长链表的查询效率。\n\n不直接使用红黑树的原因有几个方面：\n1. <span class="highlight">内存开销</span>：红黑树的结构比链表复杂，节点需要维护更多的指针\n2. <span class="highlight">短链表效率</span>：对于短链表（比如长度小于8），链表的查找效率可能更高\n3. <span class="highlight">操作复杂度</span>：红黑树的插入和删除操作比链表复杂，需要维护树的平衡\n\n这种设计体现了Java集合框架的<span class="highlight">自适应优化思想</span>，根据实际数据量和分布动态调整数据结构，以达到性能和空间的最佳平衡。`
+            },
+            {
+                id: 5,
+                category: "java",
+                question: "ArrayList的扩容机制是什么，为何扩容为原容量的1.5倍？",
+                answer: `ArrayList的扩容机制是当添加新元素时，如果当前容量不足，会创建一个<span class="highlight">新数组</span>，将原有元素复制到新数组中，然后将新元素添加进去。\n\n扩容的具体实现是：<span class="highlight">新数组的容量是原容量的1.5倍</span>（即原容量乘以3/2）。这样设计的原因：\n\n1. <span class="highlight">减少扩容次数</span>：相比翻倍策略，1.5倍扩容能减少扩容次数\n2. <span class="highlight">平衡时间复杂度</span>：通过数学证明，这种策略使得平均插入操作的时间复杂度保持为O(1)\n\n在实际应用中，如果能够预估数据量，建议在初始化ArrayList时指定合适的容量，避免频繁扩容。例如，在处理大量日志时，可以预先设置较大的容量，减少扩容开销。`
+            },
+            {
+                id: 6,
+                category: "java",
+                question: "如何理解Java反射，反射在工具类（如Spring）中有哪些应用？",
+                answer: `Java反射是一种<span class="highlight">动态获取和操作类信息</span>的能力，允许在运行时获取类的属性、方法、构造函数等信息，并进行动态调用。\n\n反射在Spring等框架中的应用非常广泛：\n\n1. <span class="highlight">IOC容器</span>：Spring通过反射动态创建和管理Bean\n2. <span class="highlight">AOP</span>：Spring AOP通过反射拦截方法调用\n3. <span class="highlight">数据绑定</span>：Spring MVC使用反射将请求参数映射到控制器方法的参数上\n\nSpring的IOC容器通过反射实现Bean的创建和依赖注入，具体过程：读取配置文件 → 使用反射获取类定义 → 动态实例化对象 → 注入依赖 → 调用初始化方法。\n\n需要注意的是，反射虽然灵活，但<span class="highlight">性能开销较大</span>，不适合高频调用的场景。因此，Spring等框架通常会在启动时完成反射操作，将结果缓存起来。`
+            },
+            {
+                id: 7,
+                category: "java",
+                question: "JVM内存结构包含哪些部分？",
+                answer: `JVM内存结构主要包括以下几个部分：\n\n1. <span class="highlight">堆（Heap）</span>：用于存储所有对象实例和数组，分为新生代和老年代\n2. <span class="highlight">方法区（Method Area）</span>：JDK 8后被元空间（Metaspace）取代，存储类信息、常量等\n3. <span class="highlight">虚拟机栈（JVM Stack）</span>：每个线程都有独立的栈，存储方法调用的栈帧\n4. <span class="highlight">本地方法栈（Native Method Stack）</span>：用于执行本地方法\n5. <span class="highlight">直接内存（Direct Memory）</span>：通过NIO分配的内存，不经过堆\n\n此外，还有运行时常量池（位于方法区/元空间中）和线程本地分配缓冲区（TLAB）。\n\n在实际应用中，理解JVM内存结构对于<span class="highlight">性能调优</span>非常重要。例如，调整堆大小可以避免频繁GC；调整元空间大小可以防止类加载过多导致的内存溢出。`
+            },
+            {
+                id: 8,
+                category: "java",
+                question: "Java中new一个对象，与内存分配使用相关的实现过程是什么？",
+                answer: `在Java中，new一个对象的过程涉及<span class="highlight">类加载、内存分配和对象初始化</span>三个主要阶段：\n\n<strong>第一阶段：类加载</strong>。JVM通过类加载器加载类文件到方法区，解析类信息。\n\n<strong>第二阶段：内存分配</strong>。在堆中为对象实例分配内存。JVM采用两种分配方式：指针碰撞（当堆内存规整时）和空闲列表法（当堆内存不规整时）。对于小对象，JVM会优先使用<span class="highlight">线程本地分配缓冲区（TLAB）</span>，通过bump-the-pointer机制快速分配。\n\n<strong>第三阶段：对象初始化</strong>。将对象实例的成员变量设置为默认值，然后执行构造函数。\n\n整个过程通过<span class="highlight">逃逸分析</span>来优化，如果发现对象不会被外部访问，JVM可能会将对象的成员变量直接分配在栈上，而不是堆上，从而提高性能。`
+            },
+            {
+                id: 9,
+                category: "java",
+                question: "new对象时内存不足会发生什么操作？",
+                answer: `当new对象时内存不足，JVM会抛出<span class="highlight">OutOfMemoryError</span>异常。但具体行为取决于内存不足的类型：\n\n- <span class="highlight">堆内存不足</span>：触发Minor GC → Full GC → 抛出OutOfMemoryError: Java heap space\n- <span class="highlight">元空间/方法区不足</span>：抛出OutOfMemoryError: Metaspace\n- <span class="highlight">直接内存不足</span>：抛出OutOfMemoryError: Direct buffer memory\n\n在实际应用中，处理内存不足需要<span class="highlight">合理设置JVM参数</span>，如-Xmx设置最大堆大小，-XX:MaxMetaspaceSize设置元空间最大大小，以及使用合适的垃圾回收器（如G1适合大内存应用）。此外，避免内存泄漏和不合理的大对象分配也是关键。`
+            },
+            {
+                id: 10,
+                category: "java",
+                question: "Minor GC如何上升到Full GC？",
+                answer: `Minor GC主要回收新生代，而Full GC会回收整个堆内存。Minor GC上升到Full GC的几种主要情况：\n\n1. <span class="highlight">老年代空间不足</span>：当Minor GC后，存活对象需要晋升到老年代，但老年代没有足够空间容纳\n2. <span class="highlight">元空间/方法区不足</span>：当类加载过多导致元空间无法扩展\n3. <span class="highlight">显式调用System.gc()</span>：多数JVM实现会响应此调用并触发Full GC\n4. <span class="highlight">CMS担保失败</span>：当CMS收集器无法清理足够的内存\n5. <span class="highlight">G1收集器特定条件</span>：全局并发标记完成后或混合垃圾回收阈值达到\n\n避免Full GC的关键是<span class="highlight">合理设置新生代大小</span>，调整Eden与Survivor的比例，以及避免对象过早晋升到老年代。`
+            },
+            {
+                id: 11,
+                category: "java",
+                question: "如何理解线程安全，Java中线程安全相关案例及保障关键字的作用？",
+                answer: `线程安全是指<span class="highlight">多个线程同时访问某个资源时，能够保证资源的一致性和正确性</span>，不会因为线程间的竞争导致数据错误或异常。\n\nJava提供的线程安全保障关键字主要有：\n\n- <span class="highlight">synchronized</span>：通过互斥锁保证代码块或方法的原子性\n- <span class="highlight">volatile</span>：保证变量的可见性，禁止指令重排序，但不保证原子性\n- <span class="highlight">原子类</span>（如AtomicInteger）：通过CAS操作实现无锁的原子更新\n- <span class="highlight">并发集合</span>（如ConcurrentHashMap）：专为并发环境设计的数据结构\n\n在实际应用中，线程安全的保障需要根据具体场景选择合适机制。例如，在高并发的订单系统中，使用ConcurrentHashMap存储订单信息；在简单的计数器场景中，使用AtomicInteger比synchronized更高效。`
+            },
+            {
+                id: 12,
+                category: "java",
+                question: "synchronized和ReentrantLock的区别，使用上有何不同？",
+                answer: `synchronized和ReentrantLock都是Java中实现线程同步的机制，但它们有以下主要区别：\n\n- <span class="highlight">锁获取方式</span>：synchronized自动获取和释放锁；ReentrantLock需要显式调用lock()和unlock()\n- <span class="highlight">锁类型</span>：synchronized是非公平锁；ReentrantLock可设置为公平锁\n- <span class="highlight">功能扩展</span>：ReentrantLock提供尝试获取锁、可中断等待、超时机制等高级功能\n- <span class="highlight">性能差异</span>：synchronized在JIT编译优化后性能较好；ReentrantLock可通过锁分离实现更细粒度的锁\n\n在使用上，<span class="highlight">synchronized更适合简单同步场景</span>；<span class="highlight">ReentrantLock适合复杂的同步场景</span>，需要更多控制的场景。`
+            },
+            {
+                id: 13,
+                category: "java",
+                question: "为何需要公平锁和非公平锁两种锁类型？",
+                answer: `公平锁和非公平锁的存在是为了<span class="highlight">平衡等待线程的公平性和系统吞吐量</span>。\n\n- <span class="highlight">公平锁</span>确保等待时间长的线程优先获取锁，避免了饥饿现象，但可能降低系统吞吐量\n- <span class="highlight">非公平锁</span>允许新请求的线程插队获取锁，提高了系统吞吐量，但可能导致某些线程长期等待\n\n需要公平锁的场景：需要保证线程公平性，避免某些线程长时间无法获取锁；系统资源有限，需要合理分配资源。\n\n需要非公平锁的场景：高并发系统，追求最大吞吐量；短时间任务，线程获取锁后很快释放。\n\n在实际应用中，<span class="highlight">公平锁和非公平锁的选择取决于具体业务需求</span>。例如，在需要保证用户请求公平处理的场景中，可以使用公平锁；而在需要处理大量瞬时请求的场景中，如秒杀系统，非公平锁可能更合适。`
+            },
+            {
+                id: 14,
+                category: "java",
+                question: "是否用过多线程，线程池的拒绝策略有几种，分别作用是什么？",
+                answer: `过多的线程会导致频繁的上下文切换，增加CPU开销，降低系统性能。线程数的设置需要考虑任务类型：\n\n- CPU密集型任务：线程数 ≈ N+1（N为CPU核心数）\n- IO密集型任务：线程数 ≈ 2N+1\n\nJava线程池的拒绝策略主要有四种：\n\n1. <span class="highlight">AbortPolicy</span>：默认策略，抛出RejectedExecutionException异常\n2. <span class="highlight">CallerRunsPolicy</span>：由提交任务的线程执行任务\n3. <span class="highlight">DiscardPolicy</span>：静默丢弃无法执行的任务\n4. <span class="highlight">DiscardOldestPolicy</span>：丢弃任务队列中最旧的任务\n\n在实际应用中，<span class="highlight">拒绝策略的选择需要根据任务的重要性和系统容忍度</span>。例如，在关键业务系统中，如支付系统，可能需要使用AbortPolicy；而在日志系统中，DiscardPolicy可能更合适。`
+            },
+            {
+                id: 15,
+                category: "java",
+                question: "线上使用线程池时，参数设定、拒绝策略制定有哪些经验？",
+                answer: `在线上使用线程池时，参数设定和拒绝策略制定需要根据<span class="highlight">任务类型和系统资源</span>进行权衡：\n\n<strong>参数设定经验</strong>：\n- 核心线程数：CPU密集型≈N+1，IO密集型≈2N+1\n- 任务队列：LinkedBlockingQueue（无界）、ArrayBlockingQueue（有界）、PriorityBlockingQueue（优先级）\n- 最大线程数：通常设置为2N\n- 空闲线程存活时间：根据任务频率调整\n\n<strong>拒绝策略制定经验</strong>：\n- 关键业务任务：使用AbortPolicy\n- 非关键任务：使用DiscardPolicy\n- 需要保证队列空间：使用DiscardOldestPolicy\n- 自定义策略：记录日志、降级处理或重试机制\n\n最后，<span class="highlight">需要监控线程池状态</span>，包括活跃线程数、队列大小、拒绝次数等，以便及时调整参数和策略。`
+            },
+            {
+                id: 16,
+                category: "mysql",
+                question: "InnoDB存储引擎与MyISAM引擎的区别？",
+                answer: `InnoDB和MyISAM是MySQL的两种主要存储引擎，它们在多个方面有显著区别：\n\n- <span class="highlight">事务支持</span>：InnoDB支持ACID事务，MyISAM不支持\n- <span class="highlight">锁机制</span>：InnoDB支持行级锁，MyISAM仅支持表级锁\n- <span class="highlight">外键约束</span>：InnoDB支持外键约束，MyISAM不支持\n- <span class="highlight">索引结构</span>：InnoDB使用聚簇索引，MyISAM使用非聚簇索引\n- <span class="highlight">崩溃恢复</span>：InnoDB有双重写缓冲和日志，MyISAM在崩溃后可能导致数据损坏\n\n适用场景：InnoDB适合需要事务、外键约束和高并发写入的场景；MyISAM适合读多写少、不需要事务的场景。\n\n在实际应用中，<span class="highlight">InnoDB已成为MySQL的默认存储引擎</span>，因为它更好地支持现代应用的需求。`
+            },
+            {
+                id: 17,
+                category: "mysql",
+                question: "COUNT(*)、COUNT(1)、COUNT(某一列)三者的区别，平常常用哪种？",
+                answer: `- <span class="highlight">COUNT(*)</span>：统计表中所有行的数量，包括NULL值和重复值\n- <span class="highlight">COUNT(1)</span>：统计表中所有行的数量，与COUNT(*)功能相同\n- <span class="highlight">COUNT(列名)</span>：统计指定列非NULL值的行数\n\n在实际应用中，<span class="highlight">COUNT(*)是最常用的</span>，因为它直观地表示统计所有行。\n\n需要注意的是，当表数据量很大时，直接执行COUNT(*)可能会导致性能问题。此时，可以考虑：\n1. 如果只需要近似值，可以使用SHOW TABLE STATUS\n2. 如果需要精确值，可以使用分页统计\n3. 对于经常需要统计的场景，可以考虑维护一个计数器表\n\n在实际项目中，我们通常会根据需求选择合适的COUNT函数。例如，在电商系统中，统计所有订单使用COUNT(*)；统计已支付订单使用COUNT支付状态列。`
+            },
+            {
+                id: 18,
+                category: "mysql",
+                question: "MySQL默认的事务隔离级别是什么，除默认外还有哪些事务隔离级别？",
+                answer: `MySQL默认的事务隔离级别是<span class="highlight">可重复读（REPEATABLE READ）</span>，其他级别包括：\n\n- <span class="highlight">读未提交（READ UNCOMMITTED）</span>：允许读取未提交的修改，可能导致脏读\n- <span class="highlight">读已提交（READ COMMITTED）</span>：只允许读取已提交的数据，解决了脏读问题\n- <span class="highlight">可串行化（SERIALIZABLE）</span>：强制事务串行执行，解决了所有并发问题\n\n在可重复读级别下，InnoDB通过MVCC和间隙锁的组合策略，<span class="highlight">可以避免脏读、不可重复读和幻读</span>。\n\n需要注意的是，<span class="highlight">MySQL的可重复读级别与SQL标准略有不同</span>。在SQL标准中，可重复读级别仍然可能出现幻读，而InnoDB通过间隙锁解决了这个问题。\n\n在实际应用中，<span class="highlight">读已提交和可重复读是常用的隔离级别</span>。读已提交适合需要看到最新数据的场景；而可重复读适合需要保持事务内数据一致性的场景。`
+            },
+            {
+                id: 19,
+                category: "mysql",
+                question: "可重复读隔离级别的MVCC除对应解决的问题外，还能解决哪些问题？",
+                answer: `可重复读隔离级别的MVCC除了解决脏读和不可重复读问题外，还能解决<span class="highlight">幻读</span>问题，这是InnoDB对SQL标准的扩展。\n\n此外，MVCC还能带来以下优势：\n\n- <span class="highlight">读写不阻塞</span>：允许读操作和写操作并发执行，提高了系统吞吐量\n- <span class="highlight">历史数据访问</span>：可以访问历史版本的数据，便于数据恢复和分析\n- <span class="highlight">减少锁竞争</span>：通过版本控制，减少了显式锁的使用\n\n在实际应用中，<span class="highlight">MVCC是InnoDB实现高并发的关键机制</span>。例如，在电商系统中，用户浏览商品时，不会阻塞其他用户下单操作。\n\n需要注意的是，<span class="highlight">MVCC在某些情况下可能导致长事务问题</span>。长时间运行的事务会占用旧版本数据，导致数据增长和性能下降。因此，需要合理控制事务长度。`
+            },
+            {
+                id: 20,
+                category: "mysql",
+                question: "InnoDB的索引结构为何是B+树？",
+                answer: `InnoDB选择B+树作为索引结构，主要是因为<span class="highlight">B+树在范围查询和顺序访问方面具有优势</span>，适合数据库的查询场景。\n\nB+树的结构特点：\n1. <span class="highlight">非叶子节点只存储键值</span>，减少了节点大小，提高了查询效率\n2. <span class="highlight">所有数据存储在叶子节点</span>，叶子节点形成一个有序链表，支持范围查询\n3. <span class="highlight">每个节点可以存储大量键值</span>，减少了树的高度\n\n与B树相比，B+树更适合数据库索引的原因：\n- 叶子节点形成链表，便于范围查询和排序操作\n- 查询路径更统一，所有数据都需要通过叶子节点访问\n- 非叶子节点更紧凑，提高了磁盘利用率\n\n在实际应用中，<span class="highlight">B+树的结构使得InnoDB能够高效处理大量数据的查询</span>。例如，在电商系统中，用户ID的索引可以快速定位到特定用户。`
+            },
+            {
+                id: 21,
+                category: "mysql",
+                question: "MySQL出现慢查询时如何处理，若加了索引仍扫描大量行该如何优化？",
+                answer: `当MySQL出现慢查询时，首先需要<span class="highlight">识别慢查询</span>，可以通过设置long_query_time参数记录慢查询日志。然后，使用EXPLAIN命令分析查询的执行计划。\n\n优化慢查询的常见方法：\n1. <span class="highlight">索引优化</span>：为WHERE、JOIN、ORDER BY等子句涉及的列创建合适的索引\n2. <span class="highlight">避免SELECT *</span>：只查询需要的列\n3. <span class="highlight">使用覆盖索引</span>：当查询的所有列都在索引中时，无需回表\n4. <span class="highlight">分页优化</span>：使用基于游标的分页\n5. <span class="highlight">避免全表扫描</span>：确保查询使用了索引\n\n当加了索引仍扫描大量行时，可能的原因：\n- 索引失效（如对索引列使用函数）\n- 选择性不足（如性别字段只有男女两个值）\n- 联合索引未使用最左前缀\n\n针对这种情况，可以采取：检查索引设计、拆分查询、使用临时表、考虑分库分表、使用缓存等措施。`
+            },
+            {
+                id: 22,
+                category: "mysql",
+                question: "1000万数据量的大表直接执行表结构修改的UPDATE语句是否合理？",
+                answer: `对于1000万数据量的大表，直接执行表结构修改的UPDATE语句通常是<span class="highlight">不合理的</span>，因为这会导致：\n\n1. <span class="highlight">锁表时间长</span>：导致其他操作被阻塞\n2. <span class="highlight">事务日志膨胀</span>：可能导致磁盘空间不足\n3. <span class="highlight">性能下降</span>：单次UPDATE操作需要扫描和修改大量数据\n4. <span class="highlight">可能失败</span>：如果UPDATE过程中出现错误，可能导致数据不一致\n\n更合理的做法是<span class="highlight">分批处理</span>：\n\n1. <span class="highlight">使用LIMIT分批</span>：每次更新10万行，直到完成全部数据\n2. <span class="highlight">使用临时表</span>：先创建临时表，将数据分批导入并更新，最后替换原表\n3. <span class="highlight">使用在线DDL工具</span>：如pt-online-schema-change\n4. <span class="highlight">结合业务停机窗口</span>：选择业务低峰期执行\n\n在实际应用中，<span class="highlight">大表操作需要谨慎处理</span>，避免影响系统正常运行。此外，在UPDATE前最好先备份数据，防止操作失误导致数据丢失。`
+            }
+        ];
+
+        // DOM elements
+        const questionsContainer = document.getElementById('questionsContainer');
+        const categoryButtons = document.querySelectorAll('.category-btn');
+        const progressBar = document.getElementById('progress');
+
+        // Render questions
+        function renderQuestions(category = 'all') {
+            questionsContainer.innerHTML = '';
+            
+            const filteredQuestions = category === 'all' 
+                ? interviewQuestions 
+                : interviewQuestions.filter(q => q.category === category);
+            
+            filteredQuestions.forEach((q, index) => {
+                const card = document.createElement('div');
+                card.className = 'question-card pulse';
+                card.style.animationDelay = `${index * 0.1}s`;
+                
+                card.innerHTML = `
+                    <div class="question-header" data-id="${q.id}">
+                        <h3>${q.question}</h3>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="answer" id="answer-${q.id}">
+                        <p>${q.answer.replace(/\n/g, '</p><p>').replace(/<p><\/p>/g, '<br>')}</p>
+                    </div>
+                `;
+                
+                questionsContainer.appendChild(card);
+            });
+            
+            // Add event listeners to toggle answers
+            document.querySelectorAll('.question-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const id = header.getAttribute('data-id');
+                    const answer = document.getElementById(`answer-${id}`);
+                    const icon = header.querySelector('.toggle-icon');
+                    
+                    if (answer.classList.contains('expanded')) {
+                        answer.classList.remove('expanded');
+                        icon.classList.remove('fa-chevron-up');
+                        icon.classList.add('fa-chevron-down');
+                    } else {
+                        answer.classList.add('expanded');
+                        icon.classList.remove('fa-chevron-down');
+                        icon.classList.add('fa-chevron-up');
+                    }
+                    
+                    updateProgress();
+                });
+            });
+            
+            updateProgress();
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const expandedAnswers = document.querySelectorAll('.answer.expanded').length;
+            const totalQuestions = document.querySelectorAll('.question-card').length;
+            const progress = totalQuestions > 0 ? (expandedAnswers / totalQuestions) * 100 : 0;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        // Category filtering
+        categoryButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Update active button
+                categoryButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                // Render questions for selected category
+                const category = button.getAttribute('data-category');
+                renderQuestions(category);
+            });
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderQuestions('all');
+            
+            // Format code blocks
+            document.querySelectorAll('.answer').forEach(answer => {
+                answer.innerHTML = answer.innerHTML
+                    .replace(/`(.*?)`/g, '<code>$1</code>')
+                    .replace(/<p>\s*<\/p>/g, '');
+            });
+        });
+    </script>
+</body>
+</html>
+
+
